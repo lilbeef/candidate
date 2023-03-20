@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aspecta.challenge.core.dao.CandidateDao">
+
+
+<select id="queryCandidatePage" resultType="java.lang.String">
+WITH candidate_max_score AS ( SELECT candidate, MAX ( score ) AS max_score FROM candidate_info
+    <where>
+    <if test="param.skill_name!=null and param.skill_name!=''">
+    and skill=#{param1.skill_name}
+</if>
+</where>
+  GROUP BY candidate ) SELECT
+JSON_BUILD_OBJECT (
+	'candidate_name',
+	C.candidate,
+	'main_skill_score',
+	M.max_score,
+	'related_skills',
+	(
+		SELECT
+			JSON_AGG (
+				JSON_BUILD_OBJECT (
+					'name',
+					s.skill,
+					'score',
+					s.score,
+					'average',
+					( SELECT AVG ( s2.score ) FROM candidate_info s2 WHERE s2.skill = s.skill )
+				)
+			ORDER BY
+				s.score DESC
+			)
+		FROM
+			candidate_info s
+		WHERE
+			s.candidate = C.candidate
+		)
+	) AS candidate_info
+FROM
+	candidate_info
+	C INNER JOIN candidate_max_score M ON C.candidate = M.candidate
+	AND C.score = M.max_score
+order by M.max_score desc
+</select>
+
+</mapper>

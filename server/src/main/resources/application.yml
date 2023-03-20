@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driverClassName: org.postgresql.Driver
+    url:
+    username:
+    password:
+  redis:
+    port:
+    database:
+    host:
+    password:
+#mybatis-plus:
+#  configuration:
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
